@@ -37,13 +37,13 @@ const Signup = () => {
     })
 
     try {
-      await axios.post("/api/auth/signup", formData, {
+      const response = await axios.post("/api/auth/signup", formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
       })
       setLoading(false)
-      navigate("/login");
+      response.status === 200 ? navigate("/login") : setError(response.data);
     } catch (error) {
       setLoading(false)
       setError(error.response?.data?.message || "An error occurred")
@@ -55,7 +55,7 @@ const Signup = () => {
       {loading && <div className="loader">
         <HashLoader color={"#007f80"} />
       </div>}
-      <section className={`auth ${loading ? "loading" : ""}`}>
+      <section className={`auth ${loading ? "loading" : null}`}>
 
         <h1 className="">Sign up</h1>
 

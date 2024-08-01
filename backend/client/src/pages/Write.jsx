@@ -1,56 +1,70 @@
 import ReactQuill from 'react-quill';
 import 'quill/dist/quill.snow.css';
 import { useState, useContext, useEffect } from 'react';
+import { useLocation, useNavigate } from "react-router-dom"; // Added useNavigate
 import { AuthContext } from "../context/AuthContext";
 import { FaRegImages } from "react-icons/fa6";
 import axios from 'axios';
 import { HashLoader } from 'react-spinners';
+import moment from 'moment';
 
 const Write = () => {
+
+  const postState = useLocation().state || {}; // Default to empty object if no state
+  const navigate = useNavigate(); // Added navigate for redirection
+
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { navigationKeys } = useContext(AuthContext);
-  const [addValue, setAddValue] = useState({
-    title: "",
-    description: "",
+
+  const [description, setDescription] = useState(postState.description || "")
+  const [postInputs, setPostInputs] = useState({
+    title: postState.title || "",
+    cat: postState.cat || "",
     image: null,
-    cat: ""
+    formattedDate: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
   });
 
   useEffect(() => {
-   document.title = "getBlogs.com | Add New Blog" 
-  }, [])
-  
-  const inputChangeHandler = e => {
-    console.log(e.target);
+    document.title = postState.title ? `Edit ${postState.title} | getBlogs.com` : `Create New Blog | getBlogs.com` ;
+  }, [postState]);
+
+  const inputChangeHandler = (e) => {
+    // Check if the event has a target property before destructuring
+    if (!e.target) return;
+
     const { name, value, files } = e.target;
-    setAddValue(prev => ({
+    setPostInputs(prev => ({
       ...prev, [name]: files ? files[0] : value
     }));
-  };
-
-  const handleQuillChange = (content) => {
-    setAddValue(prev => ({
-      ...prev, description: content
-    }));
-  };
+  }
 
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const formData = new FormData();
-    Object.keys(addValue).forEach(key => {
-      formData.append(key, addValue[key]);
-    });
 
     try {
-      const response = await axios.post("/api/posts/add", formData, {
+
+      const { title, cat, image, formattedDate } = postInputs
+
+      const response = postState.ID ? await axios.patch(`/api/posts/${postState.ID}`,
+        { title, cat, image, formattedDate, description }, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
-      });
+      }) : await axios.post(`/api/posts/add`, { title, cat, image, formattedDate, description }, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+
       setLoading(false);
-      response.status === 200 ? navigate("/") : setError("Unable to publish");
+      console.log("Response -",response.data);
+      if (response.status === 201) {
+        navigate("/");
+      } else {
+        setError("Unable to publish");
+      }
     } catch (error) {
       setLoading(false);
       setError(error.response?.data?.message || "An error occurred");
@@ -62,19 +76,19 @@ const Write = () => {
   };
 
   return (
-    <div className="screen">
+    <div className={`screen`}>
       {loading && <div className="loader">
         <HashLoader color={"#007f80"} />
       </div>}
-      <section className="addBlog">
+      <section className={`addBlog  ${loading ? "loading" : null}`}>
         <form className="write" onSubmit={submitHandler}>
           <div className="content">
-            <input type="text" placeholder="Title" name='title' onChange={inputChangeHandler} />
+            <input type="text" placeholder="Title" name='title' onChange={inputChangeHandler} value={postInputs.title} />
             <div className="editorContainer">
               <ReactQuill
                 theme="snow"
-                value={addValue.description}
-                onChange={handleQuillChange}
+                value={description}
+                onChange={setDescription}
                 className='editor'
                 name="description"
               />
@@ -83,24 +97,28 @@ const Write = () => {
           <div className="menu">
             <div className="item">
               <h3>Category</h3>
-              {navigationKeys.map(({ catName }, index) => (
-                <div className="category" key={index}>
-                  <input
-                    required
-                    type="radio"
-                    name="cat"
-                    value={catName.toLowerCase()}
-                    id={catName.toLowerCase()}
-                    onChange={inputChangeHandler}
-                  />
-                  <label htmlFor={catName.toLowerCase()}>{catName}</label>
-                </div>
-              ))}
+              <div className="category-group">
+                {navigationKeys.map(({ catName }, index) => (
+                  <div key={index} className="category">
+                    <input
+                      type="radio"
+                      name="cat"
+                      value={catName.toLowerCase()}
+                      id={`cat-${index}`}
+                      checked={postInputs.cat === catName.toLowerCase()}
+                      onChange={inputChangeHandler}
+                    />
+                    <label htmlFor={`cat-${index}`}>{catName}</label>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="item">
               <h3>Publish</h3>
-              <input type="file" name="image" id="file" accept="image/jpeg, image/png, image/gif" style={{ display: "none" }} onChange={inputChangeHandler} />
-              <label htmlFor="file" className='upload'><FaRegImages size={25} /> Upload image</label>
+              <lable htmlFor="file"><FaRegImages size={25} /> Upload image</lable>
+              <input type="file" name="image"
+                accept="image/jpeg, image/png, image/gif"
+                onChange={inputChangeHandler} />
               <div className="status">
                 <span>
                   <strong>Status: </strong>Draft
@@ -117,7 +135,9 @@ const Write = () => {
           </div>
         </form>
       </section>
+      {error && <div className="error">{error}</div>}
     </div>
   )
-}
+};
+
 export default Write;

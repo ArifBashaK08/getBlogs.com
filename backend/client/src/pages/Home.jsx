@@ -1,8 +1,10 @@
-import { useEffect } from "react"
+import { useContext, useEffect } from "react"
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import axios from "axios"
 import { HashLoader } from "react-spinners";
+import { AuthContext } from "../context/AuthContext";
+import NoData from "../components/NoData";
 // import { posts } from "./sampleData"
 
 const Home = () => {
@@ -11,10 +13,11 @@ const Home = () => {
   const { search } = useLocation()
   const [loading, setLoading] = useState(false);
   const cat = search.split("=")[1]
+  const {getText} = useContext(AuthContext)
 
   useEffect(() => {
 
-    document.title = cat ? `getBlogs.com | ${cat.charAt(0).toUpperCase()+cat.slice(1)} Blogs` : `getBlogs.com | Home Page`
+    document.title = cat ? `getBlogs.com | ${cat.charAt(0).toUpperCase() + cat.slice(1)} Blogs` : `getBlogs.com | Home Page`
 
     const getPosts = async () => {
       try {
@@ -36,26 +39,26 @@ const Home = () => {
       {loading && <div className="loader">
         <HashLoader color={"#007f80"} />
       </div>}
-      <section className="home">
+      <section className={`home  ${loading ? "loading" : null}`}>
         <div className="posts">
-          {posts.map(post => (
-            <div className="post" key={post.ID}>
+          {posts.length > 0 ? posts.map(({ title, img, description, ID }) => (
+            <div className="post" key={ID}>
               <div className="img">
-                <img src={post.img} alt={post.title} />
+                <img src={img} alt={title} />
               </div>
               <div className="content">
-                <Link to={`/post/${post.ID}`}>
-                  <h1>{post.title}</h1>
+                <Link to={`/post/${ID}`}>
+                  <h1>{title.length >= 100 ? title.slice(0, 100) + " ...." : title}</h1>
                 </Link>
-                <p>{post.description}</p>
-                <Link to={`/post/${post.ID}`}>
+                <div>{getText(description.length >= 1000 ? description.slice(0, 1000) + " ...." : description)}</div>
+                <Link to={`/post/${ID}`}>
                   <button>
                     Read more
                   </button>
                 </Link>
               </div>
             </div>
-          ))}
+          )) : <NoData />}
         </div>
       </section>
     </div>

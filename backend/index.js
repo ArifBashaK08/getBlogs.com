@@ -7,7 +7,7 @@ import { v2 as cloudinary } from "cloudinary"
 import { signup } from "./controllers/authControllers.js"
 import { authRouter, postRouter, userRouter } from "./routes/index.js"
 import cookieParser from "cookie-parser"
-import { addPost } from "./controllers/postControllers.js"
+import { addPost, updatePost } from "./controllers/postControllers.js"
 
 const app = express()
 const PORT = process.env.PORT || 2357
@@ -35,9 +35,10 @@ const uploadImage = multer({ storage });
 //Routes
 
 //Signup route
-app.post("/api/auth/signup", uploadImage.single("image"),signup)
+app.post("/api/auth/signup", uploadImage.single("image"), signup)
 //Add Post Route
-app.post("/api/posts/add", uploadImage.single("image"),addPost)
+app.post("/api/posts/add", uploadImage.single("image"), addPost)
+app.put("/api/posts/:id", uploadImage.single("image"), updatePost)
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);

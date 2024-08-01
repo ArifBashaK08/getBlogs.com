@@ -7,6 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import DeletePost from "../components/DeletePost";
 import { HashLoader } from "react-spinners";
+import Comments from "../components/Comments";
 
 const Single = () => {
 
@@ -14,7 +15,7 @@ const Single = () => {
   const { pathname } = useLocation()
   const [loading, setLoading] = useState(false);
   const postId = pathname.split("/")[2]
-  const { currentUser } = useContext(AuthContext)
+  const { currentUser, getText } = useContext(AuthContext)
 
   useEffect(() => {
     const getPost = async () => {
@@ -33,6 +34,10 @@ const Single = () => {
     getPost()
   }, [postId])
 
+  useEffect(()=> {
+    document.title = `${post?.title} | getBlogs.com`
+  },[post.title])
+
   console.log(post.cat)
 
   return (
@@ -40,7 +45,7 @@ const Single = () => {
       {loading && <div className="loader">
         <HashLoader color={"#007f80"} />
       </div>}
-      <section className="singlePage">
+      <section className={`singlePage  ${loading ? "loading" : null}`}>
         <div className="single">
           <div className="content">
             <img src={post.img} alt="Post Image" />
@@ -55,15 +60,16 @@ const Single = () => {
               </div>
               {currentUser.ID === post.uid ? (
                 <div className="edit">
-                  <Link to={`/write?edit=2`}>
-                    <FaEdit fill="teal" />
+                  <Link to={`/write?edit=${postId}`} state={post}>
+                    <FaEdit fill="teal" size={20} />
                   </Link>
                     <DeletePost postId={postId} setLoading={setLoading} />
                 </div>
               ) : null}
             </div>
             <h1>{post.title}</h1>
-            <p className="description">{post.description}</p>
+            <div className="description">{getText(post.description)}</div>
+            {/* <Comments /> */}
           </div>
           <Menu cat={post.cat} />
         </div>

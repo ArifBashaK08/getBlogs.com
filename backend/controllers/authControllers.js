@@ -82,10 +82,10 @@ export const signin = (req, res) => {
             console.log("Found Data", data[0])
             //ENCRIPTING INPUT-PASSWORD
             const isPasswordMatched = bcrypt.compareSync(req.body.password, data[0].password)
+            console.log(bcrypt.hashSync(req.body.password, 10));
             if (!isPasswordMatched) {
                 return res.status(400).json({ message: "Invalid Credentials!" })
             }
-console.log(data[0].ID);
             const token = jwt.sign({ id: data[0].ID }, process.env.TOKEN_SECRET_KET);
 
             //Passing details otherthan password to cookieToken

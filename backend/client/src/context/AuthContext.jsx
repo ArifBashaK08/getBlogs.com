@@ -7,6 +7,11 @@ export const AuthContextProvider = ({ children }) => {
 
     const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
 
+    const getText = (html) => {
+        const text = new DOMParser().parseFromString(html, "text/html")
+        return text.body.textContent
+      }
+
     const navigationKeys = [
         { catName: "Art", catLink: "/?cat=art" },
         { catName: "Science", catLink: "/?cat=science" },
@@ -40,7 +45,7 @@ export const AuthContextProvider = ({ children }) => {
     }, [currentUser]);
 
     return (
-        <AuthContext.Provider value={{ currentUser, userLogin, userLogout, navigationKeys }}>
+        <AuthContext.Provider value={{ currentUser, userLogin, userLogout, navigationKeys, getText }}>
             {children}
         </AuthContext.Provider>
     );

@@ -227,13 +227,15 @@ $lightGreen: #a3faf1;
             margin-bottom: 5rem;
             width: 100%;
             display: flex;
+            align-items: center;
             justify-content: center;
-
+            
             .posts {
                 width: 80%;
                 margin-top: 3rem;
                 display: flex;
                 flex-direction: column;
+                align-items: center;
                 gap: 6rem;
 
                 .post {
@@ -247,6 +249,7 @@ $lightGreen: #a3faf1;
                     .img {
                         flex: 2;
                         position: relative;
+                        height: 20rem;
 
                         &::after {
                             content: "";
@@ -261,7 +264,7 @@ $lightGreen: #a3faf1;
 
                         img {
                             width: 100%;
-                            max-height: 350px;
+                            height: 100%;
                             object-fit: cover;
                         }
                     }
@@ -273,7 +276,7 @@ $lightGreen: #a3faf1;
                         justify-content: space-between;
 
                         h1 {
-                            font-size: 3rem;
+                            font-size: 2rem;
                         }
 
                         p {
@@ -491,23 +494,25 @@ $lightGreen: #a3faf1;
                         justify-content: space-between;
                         flex-direction: column;
                         gap: .5rem;
-                        .upload,.status {
+
+                        .upload,
+                        .status {
                             gap: 1rem;
                             align-items: center;
                         }
-                        
-                        .status{
+
+                        .status {
                             display: grid;
                             grid-template-columns: 1fr 1fr;
-                            gap:1rem;
+                            gap: 1rem;
                             flex-wrap: wrap;
                         }
-                        
+
                         .buttons {
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            
+
                             :first-child {
                                 cursor: pointer;
                                 color: teal;

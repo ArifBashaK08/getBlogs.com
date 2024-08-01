@@ -51,7 +51,7 @@ const Login = () => {
       {loading && <div className="loader">
         <HashLoader color={"#007f80"} />
       </div>}
-      <section className={`auth ${loading ? "loading" : ""}`}>
+      <section className={`auth ${loading ? "loading" : null}`}>
         <h1 className="">LogIn</h1>
         <form onSubmit={submitHandler}>
           <input required type="email" placeholder="email@example.com" name="email" onChange={inputChangeHandler} />

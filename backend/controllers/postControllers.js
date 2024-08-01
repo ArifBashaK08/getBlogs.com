@@ -1,12 +1,13 @@
 import jwt from "jsonwebtoken"
 import { config } from "dotenv"
 import { sqlConnection } from "../dbConnection.js"
+import { v2 as cloudinary } from "cloudinary"
 
 config()
 
-const profilePicUpload = async (file) => {
-    let imgLink
+const postPicUpload = async (file) => {
     try {
+        let imgLink
         if (file) {
             // Upload to Cloudinary
             const result = await new Promise((resolve, reject) => {
@@ -19,9 +20,9 @@ const profilePicUpload = async (file) => {
                         }
                     }
                 )
-                uploadImage.end(file.buffer)
+                uploadImage.end(file?.buffer)
             })
-            return imgLink = result.secure_url;
+            return imgLink = result?.secure_url;
         } else {
             // Use default image if no file uploaded
             return imgLink = "https://icrier.org/wp-content/uploads/2022/09/Event-Image-Not-Found.jpg";
@@ -35,7 +36,7 @@ const profilePicUpload = async (file) => {
 export const getAllPosts = (req, res) => {
     const { cat } = req.query
     try {
-        const postsQuery = cat ? "SELECT * FROM blog_posts WHERE cat=?" : "SELECT * FROM blog_posts"
+        const postsQuery = cat ? "SELECT * FROM blog_posts WHERE cat=?" : "SELECT * FROM blog_posts ORDER BY created_at DESC"
 
         sqlConnection.query(postsQuery, [cat], (err, data) => {
             if (err) return res.status(500).json(err)
@@ -50,7 +51,7 @@ export const getAllPosts = (req, res) => {
 export const getPost = (req, res) => {
     const { id } = req.params
     try {
-        const postQuery = "SELECT `name`, `title`, `description`, p.img , u.img AS userImg, `uid`, `created_at`, `updated_at`, `cat` FROM blog_users u JOIN blog_posts p ON u.id=p.uid WHERE p.ID=?"
+        const postQuery = "SELECT `name`, `title`, `description`, p.ID, p.img , u.img AS userImg, `uid`, created_at, `updated_at`, `cat` FROM blog_users u JOIN blog_posts p ON u.id=p.uid WHERE p.ID=?"
         sqlConnection.query(postQuery, [id], (err, data) => {
             if (err) return res.status(500).json(err)
             return res.status(200).json(data[0])
@@ -60,15 +61,36 @@ export const getPost = (req, res) => {
     }
 }
 //============ ADD NEW BLOG ============//
-export const addPost = async(req, res) => {
-    const {title, description, cat} = req.body
+export const addPost = async (req, res) => {
     try {
-        const image = await profilePicUpload(req.file)
-        res.status(200).json("This is Post router")
+        const { title, description, cat, formattedDate } = req.body;
+        const token = req.cookies?.cookie_token;
+
+        if (!token) return res.status(401).json({ message: 'Not authenticated!' });
+
+        const image = await postPicUpload(req.file);
+
+        jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
+            console.log(userInfo);
+            if (err) return res.status(401).json('Not authorized!');
+            const addQuery = 'INSERT INTO blog_posts (title, description, cat, created_at, uid, updated_at, img) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+            sqlConnection.query(addQuery, [title, description, cat, formattedDate, userInfo.id, formattedDate, image], (err, data) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(500).json(err)
+                }
+                console.log("Post added", data);
+                res.status(201).json('Post created successfully');
+            })
+        });
+
     } catch (error) {
-        res.status(500).send(`<h1>Something went wrong</h1>`)
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error });
     }
-}
+};
+
 //============ DELETE BLOG ============//
 export const deletePost = (req, res) => {
     const token = req.cookies?.cookie_token
@@ -82,12 +104,9 @@ export const deletePost = (req, res) => {
 
             const { id } = req.params
             const deleteQuery = "DELETE FROM blog_posts WHERE ID=? AND uid=?"
-            console.log("id - ", id);
-            console.log("UserId - ", userInfo);
             sqlConnection.query(deleteQuery, [id, userInfo.id], (err, data) => {
                 if (err) return res.status(401).json("You are not authorized!")
-                console.log("Post deleted!");
-                res.status(200).json("Post has deleted, successfully!")
+                return res.status(200).json("Post has deleted, successfully!")
             })
         })
     } catch (error) {
@@ -95,10 +114,37 @@ export const deletePost = (req, res) => {
     }
 }
 //============ UPDATE BLOG ============//
-export const updatePost = (req, res) => {
+export const updatePost = async (req, res) => {
+    const {id} = req.params
     try {
-        res.status(200).json("This is Post router")
+        const { title, description, cat, formattedDate } = req.body;
+        const token = req.cookies?.cookie_token;
+
+        if (!token) return res.status(401).json({ message: 'Not authenticated!' });
+
+        const image = await postPicUpload(req.file);
+
+        jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
+            console.log(userInfo);
+
+            if (err) return res.status(401).json('Not authorized!');
+
+            const updateQuery = `UPDATE blog_posts 
+            SET title=?, description=?, cat=?, updated_at=?, img=?
+            WHERE ID=?`;
+
+            sqlConnection.query(updateQuery, [title, description, cat, formattedDate, image, id], (err, data) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(500).json(err)
+                }
+                console.log("Post has updated", data);
+                res.status(201).json('Post has updated successfully');
+            })
+        });
+
     } catch (error) {
-        res.status(500).send(`<h1>Something went wrong</h1>`)
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error });
     }
 }

@@ -20,7 +20,7 @@ const DeletePost = ({ postId, setLoading }) => {
 
     return (
         <>
-            <FaTrashAlt fill="red" onClick={deletePost} />
+            <FaTrashAlt fill="red" onClick={deletePost}  size={20} style={{cursor: "pointer"}}/>
         </>
     )
 }

@@ -5,8 +5,8 @@ config()
 
 const user = process.env.DB_USER || "root"
 const host = process.env.DB_HOST || "localhost"
-const password = process.env.DB_PASSWORD
-const database = process.env.DATABASE
+const password = process.env.DB_PASSWORD || process.env.DB_PASSWORD_LOCAL
+const database = process.env.DATABASE || "blogsdb"
 
 export const sqlConnection = mysql.createConnection({
     user,
