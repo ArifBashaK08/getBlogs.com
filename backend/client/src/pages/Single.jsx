@@ -58,7 +58,7 @@ const Single = () => {
                   <p>Last updated : <span>{moment(post.updated_at).fromNow()}</span></p>
                 </div>
               </div>
-              {currentUser.ID === post.uid ? (
+              {currentUser?.ID === post.uid ? (
                 <div className="edit">
                   <Link to={`/write?edit=${postId}`} state={post}>
                     <FaEdit fill="teal" size={20} />

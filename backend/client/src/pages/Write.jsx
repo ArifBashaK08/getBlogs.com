@@ -22,7 +22,8 @@ const Write = () => {
     title: postState.title || "",
     cat: postState.cat || "",
     image: null,
-    formattedDate: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
+    formattedDate: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+    // postStatus: "new"
   });
 
   useEffect(() => {
@@ -44,10 +45,10 @@ const Write = () => {
     setLoading(true);
 
     try {
-
+      // setPostInputs(...postInputs, postInputs.postStatus= "complete")
       const { title, cat, image, formattedDate } = postInputs
-
-      const response = postState.ID ? await axios.patch(`/api/posts/${postState.ID}`,
+      console.log(title, cat, image, formattedDate, image);
+      const response = postState.ID ? await axios.put(`/api/posts/${postState.ID}`,
         { title, cat, image, formattedDate, description }, {
         headers: {
           "Content-Type": "multipart/form-data"
@@ -72,7 +73,7 @@ const Write = () => {
   };
 
   const saveDraft = () => {
-    // Implementation for saving a draft
+    // setPostInputs(...postInputs, postInputs.postStatus= "draft")
   };
 
   return (
@@ -139,6 +140,6 @@ const Write = () => {
     </div>
   )
 };
- 
+
 
 export default Write;

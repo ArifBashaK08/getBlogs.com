@@ -54,10 +54,7 @@ export const signup = async (req, res) => {
             const userDetails = [email, username, name, encryptedPassword, img]
 
             sqlConnection.query(addUserQuery, userDetails, (err, data) => {
-                if (err) {
-                    console.log(err)
-                    return res.status(500).json(err)
-                }
+                if (err) return res.status(500).json(err)
                 res.status(200).json("User has been created")
             })
         })
@@ -79,10 +76,8 @@ export const signin = (req, res) => {
             if (data.length === 0) {
                 return res.status(404).json("User not found! Please, Signup")
             }
-            console.log("Found Data", data[0])
             //ENCRIPTING INPUT-PASSWORD
             const isPasswordMatched = bcrypt.compareSync(req.body.password, data[0].password)
-            console.log(bcrypt.hashSync(req.body.password, 10));
             if (!isPasswordMatched) {
                 return res.status(400).json({ message: "Invalid Credentials!" })
             }

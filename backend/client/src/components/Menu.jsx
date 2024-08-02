@@ -15,7 +15,7 @@ const Menu = ({ cat }) => {
                 const apiURL = `/api/posts?cat=${cat}`
                 const res = await axios.get(apiURL)
 
-                setPosts(res.data)
+                setPosts((res.data).slice(0,3))
             } catch (err) {
                 console.error(err)
             }

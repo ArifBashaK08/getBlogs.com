@@ -25,8 +25,8 @@ const Login = () => {
   };
 
   useEffect(() => {
-    document.title = "getBlogs.com | Login page" 
-   }, [])
+    document.title = "getBlogs.com | Login page"
+  }, [])
   const submitHandler = async e => {
     e.preventDefault();
     setLoading(true);
@@ -39,11 +39,10 @@ const Login = () => {
     try {
       const response = await userLogin(signinInputs);
       setLoading(false);
-      response.status === 200 ? navigate("/") : setError("Invalid Credntials");
-
+      response?.status === 200 ? navigate("/") : setError("Invalid Credentials!");
     } catch (err) {
       setLoading(false);
-      setError("An error occurred during login.");
+      setError("Invalid Credentials!");
     }
 
   };

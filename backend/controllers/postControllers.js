@@ -71,16 +71,11 @@ export const addPost = async (req, res) => {
         const image = await postPicUpload(req.file);
 
         jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
-            console.log(userInfo);
             if (err) return res.status(401).json('Not authorized!');
             const addQuery = 'INSERT INTO blog_posts (title, description, cat, created_at, uid, updated_at, img) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
             sqlConnection.query(addQuery, [title, description, cat, formattedDate, userInfo.id, formattedDate, image], (err, data) => {
-                if (err) {
-                    console.log(err)
-                    return res.status(500).json(err)
-                }
-                console.log("Post added", data);
+                if (err) return res.status(500).json(err)
                 res.status(201).json('Post created successfully');
             })
         });
@@ -97,10 +92,7 @@ export const deletePost = (req, res) => {
     try {
         if (!token) return res.status(401).json("Not Authenticated!")
         jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
-            if (err) {
-                console.log("Verify error - ", err);
-                return res.status(401).json("Invalid Token!")
-            }
+            if (err) return res.status(401).json("Invalid Token!")
 
             const { id } = req.params
             const deleteQuery = "DELETE FROM blog_posts WHERE ID=? AND uid=?"
@@ -115,9 +107,10 @@ export const deletePost = (req, res) => {
 }
 //============ UPDATE BLOG ============//
 export const updatePost = async (req, res) => {
-    const {id} = req.params
+    const { id } = req.params
     try {
         const { title, description, cat, formattedDate } = req.body;
+
         const token = req.cookies?.cookie_token;
 
         if (!token) return res.status(401).json({ message: 'Not authenticated!' });
@@ -125,7 +118,6 @@ export const updatePost = async (req, res) => {
         const image = await postPicUpload(req.file);
 
         jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
-            console.log(userInfo);
 
             if (err) return res.status(401).json('Not authorized!');
 
@@ -134,11 +126,8 @@ export const updatePost = async (req, res) => {
             WHERE ID=?`;
 
             sqlConnection.query(updateQuery, [title, description, cat, formattedDate, image, id], (err, data) => {
-                if (err) {
-                    console.log(err)
-                    return res.status(500).json(err)
-                }
-                console.log("Post has updated", data);
+                if (err) return res.status(500).json(err)
+
                 res.status(201).json('Post has updated successfully');
             })
         });

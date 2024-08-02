@@ -380,6 +380,8 @@ $lightGreen: #a3faf1;
                     }
 
                     .description {
+                        max-height: 50vh;
+                        overflow-y: auto;
                         display: flex;
                         flex-direction: column;
                         gap: 1.5rem;
