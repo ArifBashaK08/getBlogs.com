@@ -2,6 +2,8 @@ import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HashLoader } from "react-spinners";
 import { AuthContext } from "../context/AuthContext";
+import PropTypes from "prop-types"
+
 
 const Login = () => {
 
@@ -62,10 +64,15 @@ const Login = () => {
 
           {error && <p>{error}</p>}
 
-          <span className="">Don't have account? <Link to="/signup" className="">Register</Link></span>
+          <span className="">Don&apos;t have account? <Link to="/signup" className="">Register</Link></span>
         </form>
       </section>
     </div>
   )
 }
+
+Login.propTypes = {
+  userLogin: PropTypes.func.isRequired,
+};
+
 export default Login;

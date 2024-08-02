@@ -1,7 +1,7 @@
 import { Login, Signup, Write, Single, Home } from "./pages"
 import { Navbar, Footer } from "./components"
 
-import { createBrowserRouter, RouterProvider, Route, Outlet } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom"
 import './App.css'
 import "./style.scss"
 

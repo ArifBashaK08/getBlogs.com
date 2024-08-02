@@ -2,6 +2,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types"
+
 
 const Menu = ({ cat }) => {
 
@@ -25,16 +27,20 @@ const Menu = ({ cat }) => {
         <div className="menu">
             <h1>Other posts you may like</h1>
             {posts.length > 0 ? posts.map(post => (
-                    <div className="post" key={post.ID}>
-                        <img src={post.img} alt={post.title} />
-                        <h2>{post.title}</h2>
-                        <button><Link to={`/post/${post.ID}`}>Read more</Link></button>
-                    </div>
-                )):
+                <div className="post" key={post.ID}>
+                    <img src={post.img} alt={post.title} />
+                    <h2>{post.title}</h2>
+                    <button><Link to={`/post/${post.ID}`}>Read more</Link></button>
+                </div>
+            )) :
                 <strong className="">Related posts not available!</strong>
             }
         </div>
     )
 }
-export default Menu
 
+Menu.propTypes = {
+    cat: PropTypes.node.isRequired
+}
+
+export default Menu

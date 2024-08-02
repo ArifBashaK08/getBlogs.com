@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import PropTypes from "prop-types"
+
 
 export const AuthContext = createContext();
 
@@ -44,9 +46,15 @@ export const AuthContextProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(currentUser));
     }, [currentUser]);
 
+    
     return (
         <AuthContext.Provider value={{ currentUser, userLogin, userLogout, navigationKeys, getText }}>
             {children}
         </AuthContext.Provider>
     );
+    
+};
+
+AuthContextProvider.propTypes = {
+    children: PropTypes.node.isRequired,
 };

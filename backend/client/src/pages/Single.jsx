@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import DeletePost from "../components/DeletePost";
 import { HashLoader } from "react-spinners";
-import Comments from "../components/Comments";
+// import Comments from "../components/Comments";
 
 const Single = () => {
 

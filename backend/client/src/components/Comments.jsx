@@ -4,11 +4,13 @@ import { IoSendSharp } from "react-icons/io5";
 
 const Comments = () => {
 
-    const [visibility, setVisibility] = useState(false)
     const [comments, setComments] = useState([{
         comment: "It's yummy!!!"
     }])
-    const addComment = () => { }
+    const addComment = (e) => { 
+        e.preventDefault()
+        setComments(e.taget.value)
+     }
 
     return (
         <div className="">
@@ -17,8 +19,8 @@ const Comments = () => {
                 <button type="submit"><IoSendSharp size={20} /></button>
             </form>
             <div className="comments">
-                {comments.map(({comment}) => (
-                    <div className="">
+                {comments.map(({comment}, index) => (
+                    <div className="" key={index}>
                         <img src="" alt="User" />
                         <div className="">
                             <p><strong>UserName</strong><span>posted on</span></p>

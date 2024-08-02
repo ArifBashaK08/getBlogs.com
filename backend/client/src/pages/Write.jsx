@@ -7,6 +7,7 @@ import { FaRegImages } from "react-icons/fa6";
 import axios from 'axios';
 import { HashLoader } from 'react-spinners';
 import moment from 'moment';
+import PropTypes from "prop-types"
 
 const Write = () => {
 
@@ -26,7 +27,7 @@ const Write = () => {
   });
 
   useEffect(() => {
-    document.title = postState.title ? `Edit ${postState.title} | getBlogs.com` : `Create New Blog | getBlogs.com` ;
+    document.title = postState.title ? `Edit ${postState.title} | getBlogs.com` : `Create New Blog | getBlogs.com`;
   }, [postState]);
 
   const inputChangeHandler = (e) => {
@@ -59,7 +60,7 @@ const Write = () => {
       })
 
       setLoading(false);
-      console.log("Response -",response.data);
+      console.log("Response -", response.data);
       if (response.status === 201) {
         navigate("/");
       } else {
@@ -138,6 +139,22 @@ const Write = () => {
       {error && <div className="error">{error}</div>}
     </div>
   )
+};
+
+Write.propTypes = {
+  postState: PropTypes.shape({
+    ID: PropTypes.string,
+    title: PropTypes.string,
+    description: PropTypes.string,
+    cat: PropTypes.string,
+  }),
+  navigationKeys: PropTypes.arrayOf(
+    PropTypes.shape({
+      catName: PropTypes.string.isRequired,
+      catLink: PropTypes.string,
+    })
+  ),
+  userLogin: PropTypes.func,
 };
 
 export default Write;
