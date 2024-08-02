@@ -6,7 +6,11 @@ const Comments = () => {
 
     const [comments, setComments] = useState([{
         comment: "It's yummy!!!"
-    }])
+    },
+    {
+        comment: "It tastes so good!!!"
+    }
+])
     const addComment = (e) => { 
         e.preventDefault()
         setComments(e.taget.value)

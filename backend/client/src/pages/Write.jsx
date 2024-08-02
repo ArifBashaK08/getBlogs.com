@@ -7,7 +7,6 @@ import { FaRegImages } from "react-icons/fa6";
 import axios from 'axios';
 import { HashLoader } from 'react-spinners';
 import moment from 'moment';
-import PropTypes from "prop-types"
 
 const Write = () => {
 
@@ -140,21 +139,6 @@ const Write = () => {
     </div>
   )
 };
-
-Write.propTypes = {
-  postState: PropTypes.shape({
-    ID: PropTypes.string,
-    title: PropTypes.string,
-    description: PropTypes.string,
-    cat: PropTypes.string,
-  }),
-  navigationKeys: PropTypes.arrayOf(
-    PropTypes.shape({
-      catName: PropTypes.string.isRequired,
-      catLink: PropTypes.string,
-    })
-  ),
-  userLogin: PropTypes.func,
-};
+ 
 
 export default Write;

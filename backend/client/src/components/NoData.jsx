@@ -1,8 +1,9 @@
+import noData from "/dataNotFound.webp"
 
 const NoData = () => {
   return (
     <div className="noData">
-      <img src="/dataNotFound.webp" alt="Data not found!" />
+      <img src={noData} alt="Data not found!" />
     </div>
   )
 }
