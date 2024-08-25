@@ -82,6 +82,7 @@ const Login = ({ userLogin, setLoading }) => {
 
 Login.propTypes = {
   userLogin: PropTypes.func.isRequired,
+  setLoading: PropTypes.string.isRequired
 };
 
 export default Login;

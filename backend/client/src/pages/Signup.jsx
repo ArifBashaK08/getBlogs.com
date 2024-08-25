@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
+import PropTypes from "prop-types"
 
 const Signup = ({ setLoading }) => {
 
@@ -104,4 +105,9 @@ const Signup = ({ setLoading }) => {
     </form>
   )
 }
+
+Signup.prototype={
+  setLoading: PropTypes.string.isRequired
+}
+
 export default Signup

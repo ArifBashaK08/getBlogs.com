@@ -1,7 +1,7 @@
 import ReactQuill from 'react-quill';
 import 'quill/dist/quill.snow.css';
 import { useState, useContext, useEffect } from 'react';
-import { useLocation, useNavigate } from "react-router-dom"; // Added useNavigate
+import { useLocation, useNavigate, Link } from "react-router-dom"; // Added useNavigate
 import { ContextStore } from "../context/ContextStore";
 import { FaRegImages } from "react-icons/fa6";
 import axios from 'axios';

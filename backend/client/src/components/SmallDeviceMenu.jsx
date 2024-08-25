@@ -1,4 +1,3 @@
-import * as React from "react"
 import { IoMenu } from "react-icons/io5";
 import {
     NavigationMenu,
@@ -8,6 +7,7 @@ import {
     NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import { Link } from "react-router-dom"
+import PropTypes from 'prop-types'
 
 
 const SmallDeviceMenu = ({ navigationKeys, currentUser, userLogout, search }) => {
@@ -57,5 +57,10 @@ const SmallDeviceMenu = ({ navigationKeys, currentUser, userLogout, search }) =>
     )
 }
 
+SmallDeviceMenu.prototype={
+    navigationKeys: PropTypes.object.isRequired,
+    currentUser: PropTypes.object.isRequired,
+    search: PropTypes.object.isRequired,
+}
 
 export default SmallDeviceMenu

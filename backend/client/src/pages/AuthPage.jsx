@@ -2,6 +2,7 @@ import { Signup, Login } from "./index"
 import { ContextStore } from "../context/ContextStore";
 import { useContext } from "react";
 import { HashLoader } from "react-spinners";
+import PropTypes from 'prop-types'
 
 
 const AuthPage = ({ pageType }) => {
@@ -31,4 +32,9 @@ const AuthPage = ({ pageType }) => {
         </>
     )
 }
+
+AuthPage.prototype={
+    pageType: PropTypes.string.isRequired
+  }
+
 export default AuthPage
