@@ -1,41 +1,91 @@
-/* SCROLLBAR */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-::-webkit-scrollbar {
-    width: 1px;
+body {
+    font-family: "Poppins", "Roboto", sans-serif;
 }
 
-::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px grey;
-    border-radius: 10px;
-}
+@layer utilities {
 
-::-webkit-scrollbar-thumb {
-    background: red;
-    border-radius: 10px;
-}
+    .navbar-class {
+        @apply w-full py-4 lg:px-16 absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/75 to-transparent;
+    }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #b30000;
-}
+    .home-title-desc-class {
+        @apply flex items-center justify-between absolute z-20 bottom-0 left-0 right-0 text-white bg-gradient-to-t from-black to-transparent p-4;
+    }
+    .input-class{
+        @apply px-3 py-2 border border-black/15 w-full rounded-md text-sm lg:text-base placeholder:italic;
+    }
 
-.screen {
-    position: relative;
-}
+    .blog-category-class {
+        @apply absolute left-0 right-0 bottom-0 font-bold text-white bg-gradient-to-t from-gray-900 to-transparent p-8 rounded-lg;
+    }
 
-.loader {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate((-50%, -50%));
-    z-index: 100;
-}
+    .blog-carousel-card-link-class {
+        @apply font-semibold border py-1 px-4 rounded-2xl backdrop-blur-lg bg-black/20 absolute top-4 left-4 z-50 border-none text-white hover:bg-white/20 hover:text-black text-xs;
+    }
 
-.loading {
-    pointer-events: none;
-    opacity: 0.5;
-}
+    .title-class {
+        @apply font-bold text-xl md:text-2xl lg:text-3xl text-white;
+    }
 
-.isActive {
-    background: linear-gradient(1deg, #00d4c4 0%, rgba(238, 130, 238, 0) 100%);
-    border-bottom: .25rem solid #fff;
+    .form-class {
+        @apply w-full h-full flex flex-col md:flex-row justify-between items-center gap-4 lg:gap-8;
+    }
+
+    .menu-class {
+        @apply flex-1 lg:flex-[.5] flex flex-col gap-3 p-4 lg:gap-6 lg:p-8 bg-black/10 backdrop-blur-md rounded-md justify-center text-sm;
+    }
+
+    .menu-item-class {
+        @apply flex flex-col gap-2;
+    }
+
+    .menu-heading-class {
+        @apply font-bold text-base lg:text-xl;
+    }
+
+    .hr-class {
+        @apply border-0 h-1 my-4 flex-1;
+    }
+
+    .btn-class {
+        @apply p-2 lg:px-4 lg:py-2 font-semibold rounded-md text-xs lg:text-sm;
+    }
+
+    .footer-class {
+        @apply flex flex-col p-2 lg:py-8 lg:px-20 bg-gradient-to-t from-gray-500 gap-4;
+    }
+
+    .footer-right-class {
+        @apply flex gap-4 flex-col justify-center flex-1;
+    }
+
+    .footer-left-class {
+        @apply flex-1 grid grid-cols-3 gap-2;
+    }
+
+    .icons-class {
+        @apply flex gap-4 items-center;
+    }
+
+    .icon {
+        @apply bg-white/75 border border-black/30 hover:border-red-500 rounded-full p-2 w-fit;
+    }
+
+    .footer-options-class {
+        @apply flex flex-col gap-1;
+    }
+
+    .ul-title-class {
+        @apply font-semibold text-sm lg:text-base;
+    }
+
+    .ul-li-class {
+        @apply cursor-pointer text-xs lg:text-sm px-2 hover:text-rose-500;
+    }
+
 }

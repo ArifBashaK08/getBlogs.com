@@ -1,2 +1,5 @@
 export {default as Navbar} from "./Navbar"
+export {default as HomeCarousel} from "./HomeCarousel"
+export {default as BlogCatergory} from "./BlogCatergory"
+export {default as BlogsCarousel} from "./BlogsCarousel"
 export {default as Footer} from "./Footer"

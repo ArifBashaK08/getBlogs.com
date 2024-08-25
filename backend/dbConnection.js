@@ -1,22 +1,9 @@
-import mysql from "mysql2"
-import { config } from "dotenv"
+import { connect } from "mongoose"
 
-config()
+const ConnectMongoDB = (url) => {
+    connect(url)
+        .then(() => console.log("Server connected to MongoDB"))
+        .catch(err => console.error("MongoDB refused to connect", err?.message))
+}
 
-const user = process.env.DB_USER || "root"
-const host = process.env.DB_HOST || "localhost"
-const password = process.env.DB_PASSWORD || process.env.DB_PASSWORD_LOCAL
-const database = process.env.DATABASE || "blogsdb"
-
-export const sqlConnection = mysql.createConnection({
-    user,
-    host,
-    password,
-    database
-})
-
-sqlConnection.connect(err => {
-    if (err) throw err;
-    console.log("Server connected to SQL DB");
-})
-
+export default ConnectMongoDB

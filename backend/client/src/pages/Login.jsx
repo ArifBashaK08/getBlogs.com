@@ -1,20 +1,17 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HashLoader } from "react-spinners";
-import { AuthContext } from "../context/AuthContext";
 import PropTypes from "prop-types"
+import { VscEye, VscEyeClosed } from "react-icons/vsc";
 
+const Login = ({ userLogin, setLoading }) => {
 
-const Login = () => {
-
-  const { userLogin } = useContext(AuthContext)
   const navigate = useNavigate()
   const [signinInputs, setSigninInputs] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
 
   const inputChangeHandler = e => {
     e.preventDefault();
@@ -48,25 +45,38 @@ const Login = () => {
   };
 
   return (
-    <div className="screen">
-      {loading && <div className="loader">
-        <HashLoader color={"#007f80"} />
-      </div>}
-      <section className={`auth ${loading ? "loading" : null}`}>
-        <h1 className="">LogIn</h1>
-        <form onSubmit={submitHandler}>
-          <input required type="email" placeholder="email@example.com" name="email" onChange={inputChangeHandler} />
+    <form onSubmit={submitHandler} className="w-5/6 md:w-1/2 lg:w-4/6 xl:w-[55%] flex items-center justify-center flex-col gap-4 p-4">
+      <input required
+        type="email"
+        placeholder="email@example.com"
+        name="email" onChange={inputChangeHandler}
+        className="input-class" />
 
-          <input required type="password" placeholder="Password" name="password" onChange={inputChangeHandler} />
+      <div className="w-full relative">
+        <input required
+          name="password"
+          placeholder="password"
+          onChange={inputChangeHandler}
+          type={showPassword ? "text" : "password"}
+          className="input-class"
+        />
+        <button
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-4 top-0 bottom-0 flex items-center"
+        >
+          {showPassword ? <VscEye size={20} />
+            : <VscEyeClosed size={20} />}
+        </button>
+      </div>
 
-          <button type="submit">Log In</button>
+      <button type="submit"
+        className="btn-class bg-black w-full text-white"
+      >Log In</button>
 
-          {error && <p>{error}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <span className="">Don&apos;t have account? <Link to="/signup" className="">Register</Link></span>
-        </form>
-      </section>
-    </div>
+      <span className="text-xs lg:text-sm text-white">Don&apos;t have account? <Link to="/signup" className="hover:underline">Register</Link></span>
+    </form>
   )
 }
 

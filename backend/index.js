@@ -1,5 +1,5 @@
 import express from "express"
-import "./dbConnection.js"
+import ConnectMongoDB from "./dbConnection.js"
 import cors from "cors"
 import { config } from "dotenv"
 import multer from "multer"
@@ -37,6 +37,8 @@ const storage = multer.memoryStorage();
 
 const uploadImage = multer({ storage });
 //================== X ==================//
+const mongoUrl = process.env.MONGODB_URL || "mongodb://localhost:27017/local"
+ConnectMongoDB(mongoUrl)
 
 //Routes
 
@@ -51,7 +53,7 @@ app.use('/api/users', userRouter);
 app.use('/api/posts', postRouter);
 
 //For Render CLI
-app.get("*", (req, res) => res.status(200).sendFile(join(__dirname, "/client/dist/index.html")))
+app.get("*", (_, res) => res.status(200).sendFile(join(__dirname, "/client/dist/index.html")))
 
 
 app.listen(PORT, () => console.log(`Server is connecting on Port : ${PORT}`))

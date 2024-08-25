@@ -1,4 +1,4 @@
-import { sqlConnection } from "../dbConnection.js"
+import { UserModel } from "../models/users.js"
 import bcrypt from "bcryptjs"
 import { v2 as cloudinary } from "cloudinary"
 import jwt from "jsonwebtoken"
@@ -40,55 +40,57 @@ export const signup = async (req, res) => {
         const img = await profilePicUpload(req.file)
 
         //CHECKING FOR EXISTING USER AND ADD USER
-        const findUser = "SELECT * FROM blog_users WHERE email = ? OR username = ?;";
-        sqlConnection.query(findUser, [email, username], (err, data) => {
-            if (err) return res.status(500).json(err)
-            if (data.length) return res.status(409).json("User already exists!")
-
-            //ENCRIPTING PASSWORD
-            const saltRounds = 10
-            const encryptedPassword = bcrypt.hashSync(password, saltRounds)
-
-            //ADDING USER TO SQL
-            const addUserQuery = `INSERT INTO blog_users(email, username, name, password, img) VALUES (?,?,?,?,?);`
-            const userDetails = [email, username, name, encryptedPassword, img]
-
-            sqlConnection.query(addUserQuery, userDetails, (err, data) => {
-                if (err) return res.status(500).json(err)
-                res.status(200).json("User has been created")
-            })
+        const findUser = await UserModel.findOne({
+            $or: [{ email }, { username }]
         })
+
+        if (findUser) return res.status(409).json("User already exists!")
+
+        //ENCRIPTING PASSWORD
+        const saltRounds = 10
+        const encryptedPassword = bcrypt.hashSync(password, saltRounds)
+
+        const newUser = new UserModel({
+            email, username, name, img,
+            password: encryptedPassword,
+        })
+
+        await newUser.save()
+
+        return res.status(200).json("User has been created")
+
     } catch (error) {
-        res.status(500).send(`<h1>Something went wrong</h1>`)
+        console.error(error);
+        return res.status(500).send(`<h1>Something went wrong</h1>`)
     }
 }
 
 //SIGNIN ROUTER
 
-export const signin = (req, res) => {
+export const signin = async (req, res) => {
+    const { email } = req.body
     try {
         //Finding User
-        const findUser = "SELECT * FROM blog_users WHERE email=?;"
-        sqlConnection.query(findUser, [req.body.email], (err, data) => {
-            if (err) {
-                return res.status(500).json(err)
-            }
-            if (data.length === 0) {
-                return res.status(404).json("User not found! Please, Signup")
-            }
-            //ENCRIPTING INPUT-PASSWORD
-            const isPasswordMatched = bcrypt.compareSync(req.body.password, data[0].password)
-            if (!isPasswordMatched) {
-                return res.status(400).json({ message: "Invalid Credentials!" })
-            }
-            const token = jwt.sign({ id: data[0].ID }, process.env.TOKEN_SECRET_KET);
+        const findUser = await UserModel.findOne({ email })
 
-            //Passing details otherthan password to cookieToken
-            const { password, ...other } = data[0]
-            res.cookie("cookie_token", token, {
-                httpOnly: true,
-            }).status(200).json(other)
-        })
+        if (!findUser) return res.status(404).json("User not found! Please, Signup")
+
+        //ENCRIPTING INPUT-PASSWORD
+        const isPasswordMatched = bcrypt.compareSync(req.body.password, findUser.password)
+
+        if (!isPasswordMatched) return res.status(400).json({ message: "Invalid Credentials!" })
+
+        const token = jwt.sign({ id: findUser._id }, process.env.TOKEN_SECRET_KEY);
+
+        //Passing details otherthan password to cookieToken
+        const { password, ...otherDetails } = findUser.toObject()
+
+        return res.cookie("cookie_token", token, {
+            httpOnly: true,
+            secure: process.env.ENVIRONMENT === 'production',
+            maxAge: 3600000 * 24 * 15
+        }).status(200).json(otherDetails)
+
     } catch (error) {
         res.status(500).send(`<h1>Something went wrong</h1>`)
     }

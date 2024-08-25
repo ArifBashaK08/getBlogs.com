@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
-import { HashLoader } from "react-spinners";
+import { VscEye, VscEyeClosed } from "react-icons/vsc";
 
-const Signup = () => {
+const Signup = ({ setLoading }) => {
 
   const [signupInputs, setSignupInputs] = useState({
     name: "",
@@ -12,9 +12,9 @@ const Signup = () => {
     password: "",
     image: null
   });
-  
+  const [showPassword, setShowPassword] = useState(false)
+
   const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const inputChangeHandler = e => {
@@ -25,8 +25,8 @@ const Signup = () => {
     }))
   }
   useEffect(() => {
-    document.title = "getBlogs.com | Signup page" 
-   }, [])
+    document.title = "getBlogs.com | Signup page"
+  }, [])
 
   const submitHandler = async (e) => {
     e.preventDefault()
@@ -51,39 +51,57 @@ const Signup = () => {
   }
 
   return (
-    <div className="screen">
-      {loading && <div className="loader">
-        <HashLoader color={"#007f80"} />
-      </div>}
-      <section className={`auth ${loading ? "loading" : null}`}>
+    <form onSubmit={submitHandler} className="w-5/6 md:w-1/2 lg:w-4/6 xl:w-[55%] flex items-center justify-center flex-col gap-4 p-4">
+      <input required type="text"
+        placeholder="Full Name"
+        name="name"
+        onChange={inputChangeHandler}
+        className="input-class" />
 
-        <h1 className="">Sign up</h1>
+      <input required type="text"
+        placeholder="username"
+        name="username"
+        onChange={inputChangeHandler}
+        className="input-class" />
 
-        <form onSubmit={submitHandler}>
-          <input required type="text" placeholder="Full Name" name="name" onChange={inputChangeHandler} />
+      <input required type="email"
+        placeholder="email@example.com"
+        name="email"
+        onChange={inputChangeHandler}
+        className="input-class" />
 
-          <input required type="text" placeholder="username" name="username" onChange={inputChangeHandler} />
+      <div className="w-full relative">
+        <input required
+          name="password"
+          placeholder="password"
+          onChange={inputChangeHandler}
+          type={showPassword ? "text" : "password"}
+          className="input-class"
+        />
+        <button
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-0 bottom-0 flex items-center"
+            >
+              {showPassword ? <VscEye size={20} />
+                : <VscEyeClosed size={20} />}
+            </button>
+      </div>
 
-          <input required type="email" placeholder="email@example.com" name="email" onChange={inputChangeHandler} />
+      <div id="profilePic" className="w-full flex flex-col gap-2 items-start text-white">
+        <span className="text-sm flex-1">Wanna add profile pic?</span>
+        <input type="file" name="image"
+          accept="image/jpeg, image/png, image/gif"
+          onChange={inputChangeHandler}
+          className="text-sm flex-1" />
+      </div>
 
-          <input required type="password" placeholder="Password" name="password" onChange={inputChangeHandler} />
+      <button type="submit" className="btn-class bg-black w-full text-white">Register</button>
 
-          <div id="profilePic">
-            <span>Wanna add profile pic?</span>
-            <input type="file" name="image"
-              accept="image/jpeg, image/png, image/gif"
-              onChange={inputChangeHandler} />
-          </div>
-
-          <button type="submit">Register</button>
-
-          <span className="">Already have account?
-            <Link to="/login" className="">Sign In</Link>
-          </span>
-          {error && <p>{error}</p>}
-        </form>
-      </section>
-    </div>
+      <span className="text-white text-sm">Already have account?&nbsp;
+        <Link to="/login" className="">Sign In</Link>
+      </span>
+      {error && <p className="text-red-600 text-sm">{error}</p>}
+    </form>
   )
 }
 export default Signup

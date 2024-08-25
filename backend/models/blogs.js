@@ -1,18 +1,15 @@
-import { connectToDatabase } from "../sqlConnection";
+import { Schema, model } from "mongoose";
 
-const blogUsers = "Blog_Users"
+const blogSchema = Schema({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    img: { type: String, required: true },
+    cat: { type: String, required: true },
+    uId: {
+        type: Schema.Types.ObjectId,
+        ref: "getblogs-users",
+        required: true
+    },
+}, { timestamps: true })
 
-export const createUserTable = `
-CREATE TABLE IF NOT EXISTS ${blogUsers}(
-ID INT NOT NULL PRIMARY KEY AUTO INCREMENT,
-username VARCHAR(255) NOT NULL,
-password VARCHAR(255) NOT NULL,
-img VARCHAR(255)
-)`
-
-const db = connectToDatabase()
-
-db.query(createUserTable, (err, result) => {
-    if(err) throw err
-    console.log(`Table ${tableName} created successfully!`);
-})
+export const BlogModel = model("getblogs-blogs", blogSchema)

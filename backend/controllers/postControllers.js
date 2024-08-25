@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken"
 import { config } from "dotenv"
-import { sqlConnection } from "../dbConnection.js"
+import { BlogModel } from "../models/blogs.js"
 import { v2 as cloudinary } from "cloudinary"
+import { UserModel } from "../models/users.js"
 
 config()
 
 const postPicUpload = async (file) => {
+    let imgLink
     try {
-        let imgLink
         if (file) {
             // Upload to Cloudinary
             const result = await new Promise((resolve, reject) => {
@@ -33,30 +34,49 @@ const postPicUpload = async (file) => {
     }
 }
 //============ GET ALL BLOGS ============//
-export const getAllPosts = (req, res) => {
+export const getAllPosts = async (req, res) => {
     const { cat } = req.query
     try {
-        const postsQuery = cat ? "SELECT * FROM blog_posts WHERE cat=?" : "SELECT * FROM blog_posts ORDER BY created_at DESC"
+        const allPosts = cat ? await BlogModel.find({ cat }) : await BlogModel.find()
 
-        sqlConnection.query(postsQuery, [cat], (err, data) => {
-            if (err) return res.status(500).json(err)
+        if (allPosts.length === 0) return res.status(404).json({ message: 'Not Found!' })
 
-            return res.status(200).json(data)
-        })
+        return res.status(200).json(allPosts)
     } catch (error) {
         res.status(500).send(`<h1>Something went wrong</h1>`)
     }
 }
 //============ GET SINGLE BLOG ============//
-export const getPost = (req, res) => {
+export const getPost = async (req, res) => {
     const { id } = req.params
     try {
-        const postQuery = "SELECT `name`, `title`, `description`, p.ID, p.img , u.img AS userImg, `uid`, created_at, `updated_at`, `cat` FROM blog_users u JOIN blog_posts p ON u.id=p.uid WHERE p.ID=?"
-        sqlConnection.query(postQuery, [id], (err, data) => {
-            if (err) return res.status(500).json(err)
-            return res.status(200).json(data[0])
-        })
+
+        const findPost = await BlogModel.findById(id)
+
+        if (!findPost) return res.status(404).json({ message: 'Blog not found!' })
+
+        const { uId, ...postDetails } = findPost.toObject()
+
+        let user = {};
+        if (uId) {
+            user = await UserModel.findById(uId);
+            if (!user) return res.status(404).json({ message: 'User not found!' });
+        }
+        const response = {
+            uId,
+            name: user.name || null,
+            userImg: user.img || null,
+            ID: postDetails._id,
+            title: postDetails.title,
+            description: postDetails.description,
+            img: postDetails.img,
+            created_at: postDetails.created_at,
+            updated_at: postDetails.updated_at,
+            cat: postDetails.cat
+        }
+        return res.status(200).json(response)
     } catch (error) {
+        console.error("Error fetching post:", error);
         res.status(500).send(`<h1>Something went wrong</h1>`)
     }
 }
@@ -70,14 +90,22 @@ export const addPost = async (req, res) => {
 
         const image = await postPicUpload(req.file);
 
-        jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
+        jwt.verify(token, process.env.TOKEN_SECRET_KET, async (err, userInfo) => {
             if (err) return res.status(401).json('Not authorized!');
-            const addQuery = 'INSERT INTO blog_posts (title, description, cat, created_at, uid, updated_at, img) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-            sqlConnection.query(addQuery, [title, description, cat, formattedDate, userInfo.id, formattedDate, image], (err, data) => {
-                if (err) return res.status(500).json(err)
-                res.status(201).json('Post created successfully');
+            const newPost = new BlogModel({
+                title,
+                description,
+                cat,
+                formattedDate,
+                formattedDate,
+                uId: userInfo.id,
+                img: image
             })
+
+            await newPost.save()
+
+            res.status(201).json('Post created successfully');
         });
 
     } catch (error) {
@@ -87,20 +115,24 @@ export const addPost = async (req, res) => {
 };
 
 //============ DELETE BLOG ============//
-export const deletePost = (req, res) => {
+export const deletePost = async (req, res) => {
     const token = req.cookies?.cookie_token
     try {
         if (!token) return res.status(401).json("Not Authenticated!")
-        jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
-            if (err) return res.status(401).json("Invalid Token!")
 
-            const { id } = req.params
-            const deleteQuery = "DELETE FROM blog_posts WHERE ID=? AND uid=?"
-            sqlConnection.query(deleteQuery, [id, userInfo.id], (err, data) => {
-                if (err) return res.status(401).json("You are not authorized!")
-                return res.status(200).json("Post has deleted, successfully!")
-            })
-        })
+        const userInfo = jwt.verify(token, process.env.TOKEN_SECRET_KET)
+
+        if (!userInfo) return res.status(401).json("Invalid Token!")
+
+        const { id } = req.params
+
+        const deletePost = await BlogModel.findById(id)
+
+        if (deletePost.uId.toString() !== userInfo.id) return res.status(403).json('You are not authorized to delete this post!');
+
+        await BlogModel.findByIdAndDelete(id);
+
+        return res.status(200).json("Post has deleted, successfully!")
     } catch (error) {
         res.status(500).send(`<h1>Something went wrong</h1>`)
     }
@@ -115,22 +147,24 @@ export const updatePost = async (req, res) => {
 
         if (!token) return res.status(401).json({ message: 'Not authenticated!' });
 
-        const image = await postPicUpload(req.file);
+        const userInfo = jwt.verify(token, process.env.TOKEN_SECRET_KET)
 
-        jwt.verify(token, process.env.TOKEN_SECRET_KET, (err, userInfo) => {
+        const post = await BlogModel.findById(id);
 
-            if (err) return res.status(401).json('Not authorized!');
+        if (!post) return res.status(404).json({ message: 'Post not found!' });
 
-            const updateQuery = `UPDATE blog_posts 
-            SET title=?, description=?, cat=?, updated_at=?, img=?
-            WHERE ID=?`;
+        if (post.uId.toString() !== userInfo.id) return res.status(401).json('You are not authorized!');
 
-            sqlConnection.query(updateQuery, [title, description, cat, formattedDate, image, id], (err, data) => {
-                if (err) return res.status(500).json(err)
+        const image = req.file ? await postPicUpload(req.file) : null;
 
-                res.status(201).json('Post has updated successfully');
-            })
-        });
+        const updatePost = await BlogModel.findByIdAndUpdate(id, {
+            $set: {
+                title, description, cat, formattedDate,
+                img: image || post.img
+            }
+        }, { new: true })
+
+        res.status(201).json('Post has updated successfully');
 
     } catch (error) {
         console.error(error);
